@@ -1,56 +1,78 @@
-import { Component } from "react";
-import { ContactForm } from "./ContactsForm/ContactForm";
-import { ContactList } from "./ContactList/ContactList";
-import { Filter } from "./FilterSearch";
+import React from 'react';
+import Form from './Form/Form';
+import Filter from './Filter/Filter';
+import ContactsList from './ContactsList/ContactsList';
 
-export class App extends Component {
+export class App extends React.Component {
   state = {
     contacts: [],
     filter: '',
-  }
+  };
 
-  handleChange = evt => {
-   this.setState({
-    filter: evt.target.value
-   })
-  }; 
+  formSubmitHandler = data => {
+    const matchNameInput = this.state.contacts.find(
+      contact => contact.name.toLowerCase() === data.name.toLowerCase()
+    );
 
-  onAddContact = contact => {
-    const matchedContact = this.state.contacts.find(cnt => cnt.name.toLowerCase() === contact.name.toLowerCase());
-
-    if (matchedContact) {
-      alert(`${contact.name} is already in contacts`);
-      return;
+    if (matchNameInput) {
+      alert(data.name + ' is already in contacts.');
+    } else {
+      this.setState(prev => ({ contacts: [...prev.contacts, data] }));
+      this.localStorageSaveContacts();
     }
+  };
 
-    this.state.contacts.push(contact);
+  handleDataUpdate = input => {
+    this.setState({ filter: input });
+  };
 
-    this.setState({
-      contacts: this.state.contacts
-    });
+  filterContacts() {
+    if (this.state.filter !== '') {
+      return this.state.contacts.filter(contact =>
+        contact.name
+          .toLowerCase()
+          .includes(this.state.filter.toLowerCase().trim())
+      );
+    } else {
+      return this.state.contacts;
+    }
   }
 
-  handleDelete = id => {
+  onDeleteBtn = onDeleteBtn => {
     this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id)
-    }))
+      contacts: prevState.contacts.filter(
+        contact => contact.id !== onDeleteBtn
+      ),
+    }));
+    this.localStorageSaveContacts()
+  };
+
+  localStorageSaveContacts() {
+    setTimeout(() => {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }, 200);
+  }
+  componentDidMount() {
+    const getLocalStorageContacts = JSON.parse(
+      localStorage.getItem('contacts')
+    );
+    if (getLocalStorageContacts !== null) {
+      this.setState({ contacts: getLocalStorageContacts });
+    }
   }
 
   render() {
-    const filteredContacts = this.state.contacts.filter(contact => contact.name.toLowerCase().includes(this.state.filter.toLowerCase()));
-    
     return (
-      <div>
-        <ContactForm onAddContact={this.onAddContact} />
-        <Filter 
-          filter={this.state.filter}
-          onChange={this.handleChange}
+      <>
+        <Form clickSubmit={this.formSubmitHandler} />
+
+        <Filter onDataUpdate={this.handleDataUpdate} />
+
+        <ContactsList
+          arrContacts={this.filterContacts()}
+          onDeleteBtn={this.onDeleteBtn}
         />
-        <ContactList 
-          contacts={filteredContacts} 
-          onClickDelete={this.handleDelete}
-        />
-      </div>
+      </>
     );
   }
-};
+}

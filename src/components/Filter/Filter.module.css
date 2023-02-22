@@ -1,9 +1,25 @@
-.filterName {
-  display: flex;
-  flex-direction: column;
-  margin: 0.5rem auto 1rem;
-  align-items: center;
-  font-size: large;
-  text-align: left;
-  padding: 0.5rem 15rem 0.5rem 1rem;
+ul {
+    display: flex;
+    flex-direction: column;
+}
+li {
+    display: flex;
+    
+}
+
+p {
+    padding: 5px;
+}
+
+.contacts_title {
+margin-bottom: 10px;
+}
+
+.contacts_input {
+margin-left: 10px;
+}
+
+.filter_title {
+    font-size: 16px;
+    margin-left: 12px
 }
